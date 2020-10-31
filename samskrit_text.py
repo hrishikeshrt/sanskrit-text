@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr 17 22:20:39 2018
-Updated on Sat Sep 14 16:55:27 2019
-Updated on Thu Oct  4 14:13:34 2020
+Updated on Thu Oct 31 23:43:34 2020
 
 @author: Hrishikesh Terdalkar
 """
@@ -529,8 +528,8 @@ STHAANA = {
 AABHYANTARA = {
     'SP': [v + HALANTA for v in VARGIYA],
     'ISP': [v + HALANTA for v in ANTAHSTHA],
-    'IVV': [v + HALANTA for v in USHMA],
-    'VV': SWARA[1:] + [VISARGA, ANUSWARA],
+    'IVV': [v + HALANTA for v in USHMA] + [JIHVAAMULIYA, UPADHMANIYA],
+    'VV': SWARA[1:] + [CHANDRABINDU, ANUSWARA, VISARGA],
     'SV': SWARA[:1]
 }
 
@@ -551,12 +550,19 @@ BAAHYA = {
     'N': [v + HALANTA for v in resolve_pratyaahaara('हश्')[0]],
     'GH': [v + HALANTA for v in resolve_pratyaahaara('हश्')[0]],
     'AGH': [v + HALANTA for v in resolve_pratyaahaara('खर्')[0]],
-    'AP': VARGA_PRATHAMA + VARGA_TRITIYA + VARGA_PANCHAMA + [
-        v + HALANTA for v in resolve_pratyaahaara('यण्')[0]
-    ],
-    'MP': VARGA_DWITIYA + VARGA_CHATURTHA + [
-        v + HALANTA for v in resolve_pratyaahaara('शल्')[0]
-    ],
+    'AP': [
+        v + HALANTA
+        for v in (VARGA_PRATHAMA +
+                  VARGA_TRITIYA +
+                  VARGA_PANCHAMA +
+                  resolve_pratyaahaara('यण्')[0])
+    ] + [CHANDRABINDU, ANUSWARA],
+    'MP': [
+        v + HALANTA
+        for v in (VARGA_DWITIYA +
+                  VARGA_CHATURTHA +
+                  resolve_pratyaahaara('शल्')[0])
+    ] + [VISARGA, JIHVAAMULIYA, UPADHMANIYA],
     'U': SWARA,
     'ANU': [s + ANUDATTA for s in SWARA],
     'SWA': [s + SWARITA for s in SWARA]
@@ -579,6 +585,40 @@ BAAHYA_NAMES = {
 ###############################################################################
 
 
+def get_signature_letter(letter, abbrev=False):
+    """
+    Get uccharana sthaana and prayatna based signature of a letter
+
+    Parameters
+    ----------
+    letter : str
+        Samskrit letter
+        I case of Vyanjana, it must contain the HALANTA symbol as well
+    abbrev : bool
+        If True,
+            The output will contain English abbreviations
+        Otherwise,
+            The output will contain Samskrit names
+        The default is False.
+
+    Returns
+    -------
+    signature : dict
+        utpatti sthaana, aabhyantara prayatna and baahya prayatna of a letter
+    """
+
+    sthaana = get_ucchaarana_letter(letter, dimension=0, abbrev=abbrev)
+    aabhyantara = get_ucchaarana_letter(letter, dimension=1, abbrev=abbrev)
+    baahya = get_ucchaarana_letter(letter, dimension=2, abbrev=abbrev)
+
+    signature = {
+        'sthaana': sthaana,
+        'aabhyantara': aabhyantara,
+        'baahya': baahya
+    }
+    return signature
+
+
 def get_ucchaarana_letter(letter, dimension=0, abbrev=False):
     """
     Get uccharana sthaana or prayatna of a letter
@@ -597,6 +637,13 @@ def get_ucchaarana_letter(letter, dimension=0, abbrev=False):
             The output will contain English abbreviations
         Otherwise,
             The output will contain Samskrit names
+        The default is False.
+
+    Returns
+    -------
+    str
+        uccharana sthaana or prayatna of a letter
+
     """
     ucchaarana = []
     DICTS = [STHAANA, AABHYANTARA, BAAHYA]
@@ -641,6 +688,7 @@ def get_ucchaarana_word(word, dimension=0, abbrev=False):
             The output will contain English abbreviations
         Otherwise,
             The output will contain Samskrit names
+        The default is False.
     Returns
     -------
     list
@@ -676,6 +724,7 @@ def get_ucchaarana(text, dimension=0, abbrev=False):
             The output will contain English abbreviations
         Otherwise,
             The output will contain Samskrit names
+        The default is False.
     Returns
     -------
     list
