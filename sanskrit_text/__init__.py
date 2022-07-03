@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 17 22:20:39 2018
-Updated on Sun Jul 03 21:39:43 2022
+"""Sanskrit Text Utility"""
 
-@author: Hrishikesh Terdalkar
-"""
+###############################################################################
+
+__author__ = """Hrishikesh Terdalkar"""
+__email__ = "hrishikeshrt@linuxmail.org"
+__version__ = "0.1.0"
+__created_at__ = "Tue Apr 17 22:20:39 2018"
+
+###############################################################################
 
 import re
 import logging
@@ -13,7 +17,9 @@ import logging
 from collections import defaultdict
 from itertools import product
 
-logger = logging.getLogger(__name__)
+###############################################################################
+
+LOGGER = logging.getLogger(__name__)
 
 ###############################################################################
 
@@ -176,7 +182,7 @@ def form_pratyaahaara(letters):
             ignored.append(varna)
 
     if ignored:
-        logger.info(f"Ignored letters: {ignored}")
+        LOGGER.info(f"Ignored letters: {ignored}")
 
     varna_idxs = product(*varna_idx)
     for v_idx in varna_idxs:
@@ -187,14 +193,14 @@ def form_pratyaahaara(letters):
         else:
             break
     else:
-        logger.warning("Cannot form a pratyaahara due to discontinuity.")
+        LOGGER.warning("Cannot form a pratyaahara due to discontinuity.")
         return None
 
     _aadi_idx = v_idx[0]
     _pre_antya_idx = v_idx[-1]
 
     if _pre_antya_idx[1] != len(MAAHESHWARA_SUTRA[_pre_antya_idx[0]]) - 2:
-        logger.warning("Cannot form a pratyaahara due to end position.")
+        LOGGER.warning("Cannot form a pratyaahara due to end position.")
         return None
 
     aadi = MAAHESHWARA_SUTRA[_aadi_idx[0]][_aadi_idx[1]]
@@ -299,8 +305,8 @@ def toggle_matra(syllable):
 ###############################################################################
 
 
-def maatra_to_swara(m):
-    """Convert the Matra to corresponding Swara"""
+def marker_to_swara(m):
+    """Convert a Matra to corresponding Swara"""
     if m == f'-{SWARA[0]}':
         return SWARA[0]
 
@@ -311,7 +317,7 @@ def maatra_to_swara(m):
     return SWARA[m_idx + 1]
 
 
-def swara_to_maatra(s):
+def swara_to_marker(s):
     """Convert a Swara to correponding Matra"""
     if s == SWARA[0]:
         return f'-{s}'
@@ -435,7 +441,7 @@ def split_varna_word(word, technical=True):
                 word_viccheda.append(syllable[1])
             # TODO: Will this ever be the case?
             if len(syllable) > 2:
-                logger.debug(f"Long SWARA: {syllable}")
+                LOGGER.debug(f"Long SWARA: {syllable}")
                 word_viccheda.append(syllable[2:])
         elif syllable[0] in VYANJANA:
             word_viccheda.append(syllable[0] + HALANTA)
@@ -448,7 +454,7 @@ def split_varna_word(word, technical=True):
                     word_viccheda.append(syllable[1])
             # TODO: Will this ever be the case?
             if len(syllable) > 2:
-                logger.debug(f"Long VYANJANA: {syllable}")
+                LOGGER.debug(f"Long VYANJANA: {syllable}")
                 word_viccheda.append(syllable[2:])
         else:
             word_viccheda.append(syllable)
@@ -569,12 +575,12 @@ def join_varna(viccheda, technical=True):
             if next_syl in EXTRA_MATRA:
                 i += 1
                 word.append(curr_syl[:-1] + next_syl)
-            if next_syl in MATRA + ['-अ']:
+            if next_syl in MATRA + [f'-{SWARA[0]}']:
                 i += 1
                 word.append(curr_syl[:-1])
-                if next_syl != '-अ':
+                if next_syl != f'-{SWARA[0]}':
                     word.append(next_syl)
-        if curr_syl in MATRA + ['-अ'] + EXTRA_MATRA:
+        if curr_syl in MATRA + [f'-{SWARA[0]}'] + EXTRA_MATRA:
             word.append(curr_syl)
 
     return ''.join(word)
