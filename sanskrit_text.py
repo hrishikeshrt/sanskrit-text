@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr 17 22:20:39 2018
-Updated on Wed Jun 30 16:19:29 2021
+Updated on Sun Jul 03 18:08:27 2022
 
 @author: Hrishikesh Terdalkar
 """
@@ -301,7 +301,7 @@ def toggle_matra(syllable):
 
 def matra_to_swara(m):
     """Convert the Matra to corresponding Swara"""
-    if m == '':
+    if m == f'-{SWARA[0]}':
         return SWARA[0]
 
     try:
@@ -314,7 +314,7 @@ def matra_to_swara(m):
 def swara_to_matra(s):
     """Convert a Swara to correponding Matra"""
     if s == SWARA[0]:
-        return ''
+        return f'-{s}'
     try:
         s_idx = SWARA.index(s)
     except Exception:
@@ -354,12 +354,13 @@ def fix_anuswara(text):
         output_chars.append(text[-1])
     return ''.join(output_chars)
 
+
 ###############################################################################
 
 
 def get_syllables_word(word, technical=False):
     """
-    Get syllables from a Samskrit word
+    Get syllables from a Sanskrit word
     @params:
         word: word to get syllables from
         technical: (boolean)
@@ -391,7 +392,7 @@ def get_syllables_word(word, technical=False):
 
 def get_syllables(text, technical=False):
     """
-    Get syllables from a Samskrit text
+    Get syllables from a Sanskrit text
     @params:
         word: word to get syllables from
         technical: (boolean)
@@ -414,7 +415,7 @@ def get_syllables(text, technical=False):
 
 def split_varna_word(word, technical=True):
     """
-    Give a Varna decomposition of a Samskrit word
+    Give a Varna decomposition of a Sanskrit word
     @params:
         word: word to be split
         technical: (boolean)
@@ -454,31 +455,23 @@ def split_varna_word(word, technical=True):
 
     if not technical:
         real_word_viccheda = []
-        for i in range(len(word_viccheda)):
-            if word_viccheda[i] in MATRA:
-                m_idx = MATRA.index(word_viccheda[i])
+        for varna in word_viccheda:
+            if varna in MATRA:
+                m_idx = MATRA.index(varna)
                 real_word_viccheda.append(SWARA[m_idx + 1])
-            elif word_viccheda[i] == '-' + SWARA[0]:
-                real_word_viccheda.append(word_viccheda[i][1])
-            # elif word_viccheda[i] in [CHANDRABINDU, ANUSWARA]:
-            #     next_ch = ''
-            #     if i < len(word_viccheda) - 1:
-            #         next_ch = word_viccheda[i+1][0]
-            #     nasal = get_anunaasika(next_ch)
-            #     if nasal != ANUSWARA:
-            #         nasal += HALANTA
-            #     real_word_viccheda.append(nasal)
-            elif word_viccheda[i] in EXTRA_MATRA:
-                real_word_viccheda[-1] += word_viccheda[i]
+            elif varna == f'-{SWARA[0]}':
+                real_word_viccheda.append(varna[1])
+            elif varna in EXTRA_MATRA:
+                real_word_viccheda[-1] += varna
             else:
-                real_word_viccheda.append(word_viccheda[i])
+                real_word_viccheda.append(varna)
         word_viccheda = real_word_viccheda
     return word_viccheda
 
 
 def split_varna(text, technical=True, flat=False):
     """
-    Give a Varna decomposition of a Samskrit text
+    Give a Varna decomposition of a Sanskrit text
     @params:
         text: text to be split
         technical: (boolean)
@@ -522,7 +515,7 @@ def split_varna(text, technical=True, flat=False):
 
 def join_varna(viccheda, technical=True):
     """
-    Join Varna decomposition to form a Samskrit word
+    Join Varna decomposition to form a Sanskrit word
 
     Parameters
     ----------
@@ -535,7 +528,7 @@ def join_varna(viccheda, technical=True):
     Returns
     -------
     s : str
-        Samskrit word
+        Sanskrit word
     """
     word = []
     i = 0
@@ -688,12 +681,12 @@ def get_ucchaarana_vector(letter, abbrev=False):
     Parameters
     ----------
     letter : str
-        Samskrit letter
+        Sanskrit letter
     abbrev : bool
         If True,
             The output will contain English abbreviations
         Otherwise,
-            The output will contain Samskrit names
+            The output will contain Sanskrit names
         The default is False.
 
     Returns
@@ -725,12 +718,12 @@ def get_ucchaarana_vectors(word, abbrev=False):
     Parameters
     ----------
     word : str
-        Samskrit word (or text)
+        Sanskrit word (or text)
     abbrev : bool
         If True,
             The output will contain English abbreviations
         Otherwise,
-            The output will contain Samskrit names
+            The output will contain Sanskrit names
         The default is False.
     Returns
     -------
@@ -758,12 +751,12 @@ def get_signature_letter(letter, abbrev=False):
     Parameters
     ----------
     letter : str
-        Samskrit letter
+        Sanskrit letter
     abbrev : bool
         If True,
             The output will contain English abbreviations
         Otherwise,
-            The output will contain Samskrit names
+            The output will contain Sanskrit names
         The default is False.
 
     Returns
@@ -790,7 +783,7 @@ def get_signature_word(word, abbrev=False):
     Parameters
     ----------
     word : str
-        Samskrit word (or text)
+        Sanskrit word (or text)
         Caution:
             If multiple words are provided, the spaces are not included in
             the output list
@@ -798,7 +791,7 @@ def get_signature_word(word, abbrev=False):
         If True,
             The output will contain English abbreviations
         Otherwise,
-            The output will contain Samskrit names
+            The output will contain Sanskrit names
         The default is False.
     Returns
     -------
@@ -820,17 +813,17 @@ def get_signature_word(word, abbrev=False):
 
 def get_signature(text, abbrev=False):
     """
-    Get ucchaarana list of a Samskrit text
+    Get ucchaarana list of a Sanskrit text
 
     Parameters
     ----------
     text : str
-        Samskrit text (can contain newlines, spaces)
+        Sanskrit text (can contain newlines, spaces)
     abbrev : bool
         If True,
             The output will contain English abbreviations
         Otherwise,
-            The output will contain Samskrit names
+            The output will contain Sanskrit names
         The default is False.
     Returns
     -------
@@ -859,7 +852,7 @@ def get_ucchaarana_letter(letter, dimension=0, abbrev=False):
     Parameters
     ----------
     letter : str
-        Samskrit letter
+        Sanskrit letter
     dimension : int
         0 : sthaana
         1 : aabhyantara prayatna
@@ -868,7 +861,7 @@ def get_ucchaarana_letter(letter, dimension=0, abbrev=False):
         If True,
             The output will contain English abbreviations
         Otherwise,
-            The output will contain Samskrit names
+            The output will contain Sanskrit names
         The default is False.
 
     Returns
@@ -908,7 +901,7 @@ def get_ucchaarana_word(word, dimension=0, abbrev=False):
     Parameters
     ----------
     word : str
-        Samskrit word (or text)
+        Sanskrit word (or text)
         Caution:
             If multiple words are provided, the spaces are not included in
             the output list
@@ -920,7 +913,7 @@ def get_ucchaarana_word(word, dimension=0, abbrev=False):
         If True,
             The output will contain English abbreviations
         Otherwise,
-            The output will contain Samskrit names
+            The output will contain Sanskrit names
         The default is False.
     Returns
     -------
@@ -942,12 +935,12 @@ def get_ucchaarana_word(word, dimension=0, abbrev=False):
 
 def get_ucchaarana(text, dimension=0, abbrev=False):
     """
-    Get ucchaarana list of a Samskrit text
+    Get ucchaarana list of a Sanskrit text
 
     Parameters
     ----------
     text : str
-        Samskrit text (can contain newlines, spaces)
+        Sanskrit text (can contain newlines, spaces)
     dimension : int
         0 : sthaana
         1 : aabhyantara prayatna
@@ -956,7 +949,7 @@ def get_ucchaarana(text, dimension=0, abbrev=False):
         If True,
             The output will contain English abbreviations
         Otherwise,
-            The output will contain Samskrit names
+            The output will contain Sanskrit names
         The default is False.
     Returns
     -------
