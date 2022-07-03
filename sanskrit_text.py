@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr 17 22:20:39 2018
-Updated on Sun Jul 03 18:08:27 2022
+Updated on Sun Jul 03 21:39:43 2022
 
 @author: Hrishikesh Terdalkar
 """
@@ -27,7 +27,7 @@ def chr_unicode(u):
 
 
 ###############################################################################
-# Alphabet of samskRta
+# Alphabet of Sanskrit
 
 MATRA = ['ा', 'ि', 'ी', 'ु',  'ू', 'ृ', 'ॄ', 'ॢ', 'ॣ', 'े', 'ै', 'ो', 'ौ']
 SWARA = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ऋ', 'ॠ', 'ऌ', 'ॡ', 'ए', 'ऐ', 'ओ', 'औ']
@@ -38,7 +38,7 @@ DANTYA = ['त', 'थ', 'द', 'ध', 'न']
 AUSHTHYA = ['प', 'फ', 'ब', 'भ', 'म']
 ANTAHSTHA = ['य', 'र', 'ल', 'व']
 USHMA = ['श', 'ष', 'स', 'ह']
-VISHISHTA = ['ळ', 'ऱ']
+VISHISHTA = ['ळ']
 
 VARGIYA = KANTHYA + TALAVYA + MURDHANYA + DANTYA + AUSHTHYA
 VYANJANA = VARGIYA + ANTAHSTHA + USHMA + VISHISHTA
@@ -299,7 +299,7 @@ def toggle_matra(syllable):
 ###############################################################################
 
 
-def matra_to_swara(m):
+def maatra_to_swara(m):
     """Convert the Matra to corresponding Swara"""
     if m == f'-{SWARA[0]}':
         return SWARA[0]
@@ -311,7 +311,7 @@ def matra_to_swara(m):
     return SWARA[m_idx + 1]
 
 
-def swara_to_matra(s):
+def swara_to_maatra(s):
     """Convert a Swara to correponding Matra"""
     if s == SWARA[0]:
         return f'-{s}'
