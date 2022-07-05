@@ -46,8 +46,10 @@ ANTAHSTHA = ['य', 'र', 'ल', 'व']
 USHMA = ['श', 'ष', 'स', 'ह']
 VISHISHTA = ['ळ']
 
+VYANJANA_NUKTA = ['ऴ', 'ऱ', 'ऩ', 'क़', 'ख़', 'ग़', 'ज़', 'ड़', 'ढ़', 'फ़', 'य़']
+
 VARGIYA = KANTHYA + TALAVYA + MURDHANYA + DANTYA + AUSHTHYA
-VYANJANA = VARGIYA + ANTAHSTHA + USHMA + VISHISHTA
+VYANJANA = VARGIYA + ANTAHSTHA + USHMA + VISHISHTA + VYANJANA_NUKTA
 
 VARGA_PRATHAMA = [VARGIYA[i * 5] for i in range(5)]
 VARGA_DWITIYA = [VARGIYA[i * 5 + 1] for i in range(5)]
