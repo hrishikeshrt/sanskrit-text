@@ -34,9 +34,28 @@ def chr_unicode(u):
 
 ###############################################################################
 # Alphabet of Sanskrit
+DESIGN = """
+Design
+------
+
+* len(SWARA) == len(MATRA) + 1  # 'अ' is extra at the beginning
+* len(EXTENDED_SWARA) == len(EXTENDED_MATRA) + 1 # 'ऍ' is extra at the end
+* It is unclear which of 'ॲ' or 'ऍ' should correspond to 'ॅ', current choice is
+  the former. If that changes, the order in EXTENDED_MATRA would need to change
+* ARTIFICIAL_MATRA contains absent vowel signs. Currently this is just for 'अ'.
+  Any new sign should follow the pattern as hyphen ('-') followed by the vowel
+  letter (e.g. '-अ').
+"""
+
+SWARA = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ऋ', 'ॠ', 'ऌ', 'ॡ', 'ए', 'ऐ', 'ओ', 'औ']
+EXTENDED_SWARA = ['ऎ', 'ऒ', 'ॲ', 'ऑ', 'ऍ']
 
 MATRA = ['ा', 'ि', 'ी', 'ु',  'ू', 'ृ', 'ॄ', 'ॢ', 'ॣ', 'े', 'ै', 'ो', 'ौ']
-SWARA = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ऋ', 'ॠ', 'ऌ', 'ॡ', 'ए', 'ऐ', 'ओ', 'औ']
+EXTENDED_MATRA = ['ॆ', 'ॊ', 'ॅ', 'ॉ']
+
+ARTIFICIAL_MATRA_A = f"-{SWARA[0]}"
+ARTIFICIAL_MATRA = [ARTIFICIAL_MATRA_A]
+
 KANTHYA = ['क', 'ख', 'ग', 'घ', 'ङ']
 TALAVYA = ['च', 'छ', 'ज', 'झ', 'ञ']
 MURDHANYA = ['ट', 'ठ', 'ड', 'ढ', 'ण']
@@ -46,17 +65,7 @@ ANTAHSTHA = ['य', 'र', 'ल', 'व']
 USHMA = ['श', 'ष', 'स', 'ह']
 VISHISHTA = ['ळ']
 
-VARGIYA = KANTHYA + TALAVYA + MURDHANYA + DANTYA + AUSHTHYA
-VYANJANA = VARGIYA + ANTAHSTHA + USHMA + VISHISHTA
-
-VARGA_PRATHAMA = [VARGIYA[i * 5] for i in range(5)]
-VARGA_DWITIYA = [VARGIYA[i * 5 + 1] for i in range(5)]
-VARGA_TRITIYA = [VARGIYA[i * 5 + 2] for i in range(5)]
-VARGA_CHATURTHA = [VARGIYA[i * 5 + 3] for i in range(5)]
-VARGA_PANCHAMA = [VARGIYA[i * 5 + 4] for i in range(5)]
-
-LAGHU_SWARA = [SWARA[i] for i in [0, 2, 4, 6, 8]]
-LAGHU_MATRA = [MATRA[i] for i in [1, 3, 5, 7]]
+# --------------------------------------------------------------------------- #
 
 OM = 'ॐ'
 AVAGRAHA = 'ऽ'
@@ -68,6 +77,8 @@ ANUDATTA = '॒'
 CHANDRABINDU = 'ँ'
 CHANDRABINDU_VIRAMA = 'ꣳ'
 CHANDRABINDU_SPACING = 'ꣲ'
+CHANDABINDU_TWO = 'ꣵ'
+CHANDRABINDU_THREE = 'ꣶ'
 
 ANUSWARA = 'ं'
 VISARGA = 'ः'
@@ -76,21 +87,49 @@ JIHVAAMULIYA = 'ᳵ'
 UPADHMANIYA = 'ᳶ'
 
 HALANTA = '्'
-NUKTA = '़'
+NUKTA = '़'          # unused
 ABBREV = '॰'
 DANDA = '।'
 DOUBLE_DANDA = '॥'
 
+# --------------------------------------------------------------------------- #
+# Groups
 
-EXTRA_MATRA = [CHANDRABINDU, ANUSWARA, VISARGA]
-AYOGAVAAHA = EXTRA_MATRA + [JIHVAAMULIYA, UPADHMANIYA]
+VARGIYA = KANTHYA + TALAVYA + MURDHANYA + DANTYA + AUSHTHYA
+VYANJANA = VARGIYA + ANTAHSTHA + USHMA + VISHISHTA
+EXTENDED_VYANJANA = ['ऴ', 'क़', 'ख़', 'ग़', 'ज़', 'ड़', 'ढ़', 'फ़', 'य़']
+
+VARGA_PRATHAMA = [VARGIYA[i * 5] for i in range(5)]
+VARGA_DWITIYA = [VARGIYA[i * 5 + 1] for i in range(5)]
+VARGA_TRITIYA = [VARGIYA[i * 5 + 2] for i in range(5)]
+VARGA_CHATURTHA = [VARGIYA[i * 5 + 3] for i in range(5)]
+VARGA_PANCHAMA = [VARGIYA[i * 5 + 4] for i in range(5)]
+
+LAGHU_SWARA = [SWARA[i] for i in [0, 2, 4, 6, 8]] + EXTENDED_SWARA[:2]
+LAGHU_MATRA = [MATRA[i] for i in [1, 3, 5, 7]] + EXTENDED_MATRA[:2]
+
+# --------------------------------------------------------------------------- #
+
+AYOGAVAAHA_COMMON = [CHANDRABINDU, ANUSWARA, VISARGA]
+AYOGAVAAHA = AYOGAVAAHA_COMMON + [JIHVAAMULIYA, UPADHMANIYA]
 
 VEDIC_MARKS = [SWARITA, ANUDATTA, DOUBLE_SWARITA, TRIPLE_SWARITA]
-SPECIAL = [AVAGRAHA, OM, NUKTA, CHANDRABINDU_VIRAMA, CHANDRABINDU_SPACING]
+SPECIAL = [
+    AVAGRAHA, OM, CHANDRABINDU_VIRAMA, CHANDRABINDU_SPACING,
+    CHANDABINDU_TWO, CHANDRABINDU_THREE
+]
 OTHER = [HALANTA]
 
-VARNA = SWARA + VYANJANA
-ALPHABET = VARNA + MATRA + AYOGAVAAHA + SPECIAL + OTHER + VEDIC_MARKS
+# --------------------------------------------------------------------------- #
+
+ALL_SWARA = SWARA + EXTENDED_SWARA
+ALL_VYANJANA = VYANJANA + EXTENDED_VYANJANA
+ALL_MATRA = MATRA + EXTENDED_MATRA      # does NOT contain ARTIFICIAL_MATRA
+
+VARNA = ALL_SWARA + ALL_VYANJANA
+ALPHABET = VARNA + ALL_MATRA + AYOGAVAAHA + SPECIAL + OTHER + VEDIC_MARKS
+
+# --------------------------------------------------------------------------- #
 
 SPACES = [' ', '\t', '\n', '\r']
 PUNC = [DANDA, DOUBLE_DANDA, ABBREV]
@@ -98,6 +137,9 @@ GEN_PUNC = ['.', ',', ';', '', '"', "'", '`']
 
 DIGITS = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
 COMBINING_DIGIT_MARKS = ['꣠', '꣡', '꣢', '꣣', '꣤', '꣥', '꣦', '꣧', '꣨', '꣩']
+
+# --------------------------------------------------------------------------- #
+# Special Sequences
 
 KSHA = 'क्ष'
 JNA = 'ज्ञ'
@@ -266,7 +308,7 @@ def trim_matra(line):
     answer = line
     if line[-1] in [ANUSWARA, HALANTA, VISARGA]:
         answer = line[:-1]
-    if answer[-1] in MATRA:
+    if answer[-1] in ALL_MATRA:
         answer = answer[:-1]
     return answer
 
@@ -278,10 +320,15 @@ def is_laghu(syllable):
     Checks if the current syllable is Laghu
     """
 
-    return all([(x in VYANJANA or
-                x in LAGHU_SWARA or
-                x in LAGHU_MATRA or
-                x == HALANTA) for x in syllable])
+    return all([
+        (
+            x in VYANJANA or
+            x in LAGHU_SWARA or
+            x in LAGHU_MATRA or
+            x == HALANTA
+        )
+        for x in syllable
+    ])
 
 
 def toggle_matra(syllable):
@@ -307,25 +354,31 @@ def toggle_matra(syllable):
 
 def marker_to_swara(m):
     """Convert a Matra to corresponding Swara"""
-    if m == f'-{SWARA[0]}':
-        return SWARA[0]
+    if m in ARTIFICIAL_MATRA:
+        return m[1:]
 
-    try:
+    if m in MATRA:
         m_idx = MATRA.index(m)
-    except Exception:
-        return None
-    return SWARA[m_idx + 1]
+        return SWARA[m_idx + 1]
+    elif m in EXTENDED_MATRA:
+        m_idx = EXTENDED_MATRA.index(m)
+        return EXTENDED_SWARA[m]
+    return None
 
 
 def swara_to_marker(s):
     """Convert a Swara to correponding Matra"""
     if s == SWARA[0]:
         return f'-{s}'
-    try:
+
+    if s in SWARA:
         s_idx = SWARA.index(s)
-    except Exception:
-        return None
-    return MATRA[s_idx - 1]
+        return MATRA[s_idx - 1]
+    if s in EXTENDED_SWARA[:-1]:
+        s_idx = EXTENDED_SWARA.index(s)
+        return EXTENDED_MATRA[s_idx]
+    return None
+
 
 ###############################################################################
 
@@ -386,7 +439,7 @@ def get_syllables_word(word, technical=False):
         # words split to start at START_CHARS
         start_chars = VARNA + SPECIAL
         if technical:
-            start_chars += EXTRA_MATRA
+            start_chars += AYOGAVAAHA_COMMON
         while i < wlen and word[i] not in start_chars:
             current += word[i]
             i += 1
@@ -402,8 +455,8 @@ def get_syllables(text, technical=False):
     @params:
         word: word to get syllables from
         technical: (boolean)
-                    if True, ensures that each element contains at most
-                    one Swara or Vyanjana
+            if True, ensures that each element contains at most
+            one Swara or Vyanjana
     """
     lines = split_lines(text.strip())
     syllables = []
@@ -425,7 +478,8 @@ def split_varna_word(word, technical=True):
     @params:
         word: word to be split
         technical: (boolean)
-                    if True would give split more useful for analysis
+            if True would give split more useful for analysis,
+            differentiating between Swara and Swara markers
     @return:
         viccheda: list of list of lists
             Viccheda of each word is a list.
@@ -435,26 +489,26 @@ def split_varna_word(word, technical=True):
     word_syllables = get_syllables_word(word, True)
     word_viccheda = []
     for syllable in word_syllables:
-        if syllable[0] in SWARA:
+        if syllable[0] in ALL_SWARA:
             word_viccheda.append(syllable[0])
             if len(syllable) > 1:
                 word_viccheda.append(syllable[1])
             # TODO: Will this ever be the case?
             if len(syllable) > 2:
-                LOGGER.debug(f"Long SWARA: {syllable}")
+                LOGGER.warning(f"Long SWARA: {syllable}")
                 word_viccheda.append(syllable[2:])
         elif syllable[0] in VYANJANA:
             word_viccheda.append(syllable[0] + HALANTA)
             if len(syllable) == 1:
-                word_viccheda.append('-' + SWARA[0])
+                word_viccheda.append(ARTIFICIAL_MATRA_A)
             if len(syllable) > 1:
-                if syllable[1] in EXTRA_MATRA:
-                    word_viccheda.append('-' + SWARA[0])
+                if syllable[1] in AYOGAVAAHA_COMMON:
+                    word_viccheda.append(ARTIFICIAL_MATRA_A)
                 if syllable[1] != HALANTA:
                     word_viccheda.append(syllable[1])
             # TODO: Will this ever be the case?
             if len(syllable) > 2:
-                LOGGER.debug(f"Long VYANJANA: {syllable}")
+                LOGGER.warning(f"Long VYANJANA: {syllable}")
                 word_viccheda.append(syllable[2:])
         else:
             word_viccheda.append(syllable)
@@ -462,12 +516,9 @@ def split_varna_word(word, technical=True):
     if not technical:
         real_word_viccheda = []
         for varna in word_viccheda:
-            if varna in MATRA:
-                m_idx = MATRA.index(varna)
-                real_word_viccheda.append(SWARA[m_idx + 1])
-            elif varna == f'-{SWARA[0]}':
-                real_word_viccheda.append(varna[1])
-            elif varna in EXTRA_MATRA:
+            if varna in ARTIFICIAL_MATRA + ALL_MATRA:
+                real_word_viccheda.append(marker_to_swara(varna))
+            elif varna in AYOGAVAAHA_COMMON:
                 real_word_viccheda[-1] += varna
             else:
                 real_word_viccheda.append(varna)
@@ -550,9 +601,9 @@ def join_varna(viccheda, technical=True):
             word.append(curr_syl)
             continue
 
-        if curr_syl[0] in SWARA + SPECIAL:
+        if curr_syl[0] in ALL_SWARA + SPECIAL:
             word.append(curr_syl[0])
-            if curr_syl[-1] in EXTRA_MATRA:
+            if curr_syl[-1] in AYOGAVAAHA_COMMON:
                 word.append(curr_syl[-1])
         if curr_syl[-1] == HALANTA:
             if next_syl in [' ', '\n']:
@@ -563,24 +614,22 @@ def join_varna(viccheda, technical=True):
                 break
             if next_syl[-1] == HALANTA:
                 word.append(curr_syl)
-            if next_syl[0] in SWARA:
+            if next_syl[0] in ALL_SWARA:
                 i += 1
                 word.append(curr_syl[:-1])
                 if next_syl[0] != SWARA[0]:
-                    s_idx = SWARA.index(next_syl[0])
-                    matra = MATRA[s_idx - 1]
-                    word.append(matra)
+                    word.append(marker_to_swara(next_syl[0]))
                 if next_syl[-1] == VISARGA:
                     word.append(next_syl[-1])
-            if next_syl in EXTRA_MATRA:
+            if next_syl in AYOGAVAAHA_COMMON:
                 i += 1
                 word.append(curr_syl[:-1] + next_syl)
-            if next_syl in MATRA + [f'-{SWARA[0]}']:
+            if next_syl in ARTIFICIAL_MATRA + ALL_MATRA:
                 i += 1
                 word.append(curr_syl[:-1])
-                if next_syl != f'-{SWARA[0]}':
+                if next_syl != ARTIFICIAL_MATRA_A:
                     word.append(next_syl)
-        if curr_syl in MATRA + [f'-{SWARA[0]}'] + EXTRA_MATRA:
+        if curr_syl in ARTIFICIAL_MATRA + ALL_MATRA + AYOGAVAAHA_COMMON:
             word.append(curr_syl)
 
     return ''.join(word)
@@ -680,7 +729,7 @@ UCCHAARANA_NAMES = dict(**STHAANA_NAMES, **AABHYANTARA_NAMES, **BAAHYA_NAMES)
 ###############################################################################
 
 
-def get_ucchaarana_vector(letter, abbrev=False):
+def get_ucchaarana_vector(letter: str, abbrev=False):
     """
     Get ucchaarana sthaana and prayatna based vector of a letter
 
@@ -738,7 +787,7 @@ def get_ucchaarana_vectors(word, abbrev=False):
     """
     letters = []
     for letter in split_varna_word(word, technical=False):
-        if [v for v in EXTRA_MATRA if v in letter]:
+        if [v for v in AYOGAVAAHA_COMMON if v in letter]:
             letters.extend(letter)
         else:
             letters.append(letter)
@@ -807,7 +856,7 @@ def get_signature_word(word, abbrev=False):
     """
     letters = []
     for letter in split_varna_word(word, technical=False):
-        if [v for v in EXTRA_MATRA if v in letter]:
+        if [v for v in AYOGAVAAHA_COMMON if v in letter]:
             letters.extend(letter)
         else:
             letters.append(letter)
@@ -929,7 +978,7 @@ def get_ucchaarana_word(word, dimension=0, abbrev=False):
     """
     letters = []
     for letter in split_varna_word(word, technical=False):
-        if [v for v in EXTRA_MATRA if v in letter]:
+        if [v for v in AYOGAVAAHA_COMMON if v in letter]:
             letters.extend(letter)
         else:
             letters.append(letter)
