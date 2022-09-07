@@ -13,7 +13,7 @@ import sys
 def main():
     """Console Script for :code:`sanskrit-text`"""
     parser = argparse.ArgumentParser("Sanskrit Text Utility")
-    parser.add_argument('_', nargs='*')
+    parser.add_argument("_", nargs="*")
     args = parser.parse_args()
 
     print("Arguments: " + str(args._))
