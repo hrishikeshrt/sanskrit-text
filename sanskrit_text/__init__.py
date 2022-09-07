@@ -403,7 +403,7 @@ def is_laghu(syllable: str) -> bool:
     return all(
         [
             (
-                x in VYANJANA
+                x in ALL_VYANJANA
                 or x in LAGHU_SWARA
                 or x in LAGHU_MATRA
                 or x == HALANTA
@@ -603,7 +603,7 @@ def split_varna_word(word: str, technical: bool = True) -> List[str]:
             if len(syllable) > 2:
                 LOGGER.warning(f"Long SWARA: {syllable}")
                 word_viccheda.append(syllable[2:])
-        elif syllable[0] in VYANJANA:
+        elif syllable[0] in ALL_VYANJANA:
             word_viccheda.append(syllable[0] + HALANTA)
             if len(syllable) == 1:
                 word_viccheda.append(ARTIFICIAL_MATRA_A)
