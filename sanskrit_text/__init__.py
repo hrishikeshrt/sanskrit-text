@@ -16,6 +16,7 @@ import logging
 
 from collections import defaultdict
 from itertools import product
+from typing import Dict, List, Tuple
 
 ###############################################################################
 
@@ -24,20 +25,42 @@ LOGGER = logging.getLogger(__name__)
 ###############################################################################
 
 
-def ord_unicode(ch):
+def ord_unicode(ch: str) -> str:
+    """Get Unicode 4-character-identifier corresponding to a character
+
+    Parameters
+    ----------
+    ch : str
+        Single character
+
+    Returns
+    -------
+    str
+        4-character unicode identifier
+    """
     return hex(ord(ch)).split('x')[1].zfill(4)
 
 
-def chr_unicode(u):
+def chr_unicode(u: str) -> str:
+    """Get a Unicode character corresponding to 4-chracater identifier
+
+    Parameters
+    ----------
+    u : str
+        4-character unicode identifier
+
+    Returns
+    -------
+    str
+        Single character
+    """
+
     return chr(int(u, 16))
 
 
 ###############################################################################
-# Alphabet of Sanskrit
-DESIGN = """
-Design
-------
 
+DESIGN = """
 * len(SWARA) == len(MATRA) + 1  # 'अ' is extra at the beginning
 * len(EXTENDED_SWARA) == len(EXTENDED_MATRA) + 1 # 'ऍ' is extra at the end
 * It is unclear which of 'ॲ' or 'ऍ' should correspond to 'ॅ', current choice is
@@ -45,16 +68,19 @@ Design
 * ARTIFICIAL_MATRA contains absent vowel signs. Currently this is just for 'अ'.
   Any new sign should follow the pattern as hyphen ('-') followed by the vowel
   letter (e.g. '-अ').
+* DIGITS, COMBINING_DIGIT_MARKS, PUNCTUATION and GENERAL_PUNCTUATION aren't
+  part of the ALPHABET. Their inclusion needs more deliberation.
+* VEDIC_MARKS are not used in syllabification functions currently.
 """
+
+###############################################################################
+# Alphabet of Sanskrit
 
 SWARA = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ऋ', 'ॠ', 'ऌ', 'ॡ', 'ए', 'ऐ', 'ओ', 'औ']
 EXTENDED_SWARA = ['ऎ', 'ऒ', 'ॲ', 'ऑ', 'ऍ']
 
 MATRA = ['ा', 'ि', 'ी', 'ु',  'ू', 'ृ', 'ॄ', 'ॢ', 'ॣ', 'े', 'ै', 'ो', 'ौ']
 EXTENDED_MATRA = ['ॆ', 'ॊ', 'ॅ', 'ॉ']
-
-ARTIFICIAL_MATRA_A = f"-{SWARA[0]}"
-ARTIFICIAL_MATRA = [ARTIFICIAL_MATRA_A]
 
 KANTHYA = ['क', 'ख', 'ग', 'घ', 'ङ']
 TALAVYA = ['च', 'छ', 'ज', 'झ', 'ञ']
@@ -64,8 +90,11 @@ AUSHTHYA = ['प', 'फ', 'ब', 'भ', 'म']
 ANTAHSTHA = ['य', 'र', 'ल', 'व']
 USHMA = ['श', 'ष', 'स', 'ह']
 VISHISHTA = ['ळ']
+EXTENDED_VYANJANA = ['ऴ', 'क़', 'ख़', 'ग़', 'ज़', 'ड़', 'ढ़', 'फ़', 'य़']
 
 # --------------------------------------------------------------------------- #
+
+ARTIFICIAL_MATRA_A = f"-{SWARA[0]}"
 
 OM = 'ॐ'
 AVAGRAHA = 'ऽ'
@@ -97,7 +126,6 @@ DOUBLE_DANDA = '॥'
 
 VARGIYA = KANTHYA + TALAVYA + MURDHANYA + DANTYA + AUSHTHYA
 VYANJANA = VARGIYA + ANTAHSTHA + USHMA + VISHISHTA
-EXTENDED_VYANJANA = ['ऴ', 'क़', 'ख़', 'ग़', 'ज़', 'ड़', 'ढ़', 'फ़', 'य़']
 
 VARGA_PRATHAMA = [VARGIYA[i * 5] for i in range(5)]
 VARGA_DWITIYA = [VARGIYA[i * 5 + 1] for i in range(5)]
@@ -122,6 +150,8 @@ OTHER = [HALANTA]
 
 # --------------------------------------------------------------------------- #
 
+ARTIFICIAL_MATRA = [ARTIFICIAL_MATRA_A]
+
 ALL_SWARA = SWARA + EXTENDED_SWARA
 ALL_VYANJANA = VYANJANA + EXTENDED_VYANJANA
 ALL_MATRA = MATRA + EXTENDED_MATRA      # does NOT contain ARTIFICIAL_MATRA
@@ -132,8 +162,8 @@ ALPHABET = VARNA + ALL_MATRA + AYOGAVAAHA + SPECIAL + OTHER + VEDIC_MARKS
 # --------------------------------------------------------------------------- #
 
 SPACES = [' ', '\t', '\n', '\r']
-PUNC = [DANDA, DOUBLE_DANDA, ABBREV]
-GEN_PUNC = ['.', ',', ';', '', '"', "'", '`']
+PUNCTUATION = [DANDA, DOUBLE_DANDA, ABBREV]
+GENERAL_PUNCTUATION = ['.', ',', ';', '', '"', "'", '`']
 
 DIGITS = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
 COMBINING_DIGIT_MARKS = ['꣠', '꣡', '꣢', '꣣', '꣤', '꣥', '꣦', '꣧', '꣨', '꣩']
@@ -212,7 +242,7 @@ for _sutra_idx, sutra in enumerate(MAAHESHWARA_SUTRA):
 ###############################################################################
 
 
-def form_pratyaahaara(letters):
+def form_pratyaahaara(letters: List[str]) -> str:
     """Form a pratyaahaara from a list of letters"""
     varna_idx = []
     ignored = []
@@ -250,8 +280,8 @@ def form_pratyaahaara(letters):
     return f'{aadi}{antya}'
 
 
-def resolve_pratyaahaara(pratyaahaara):
-    """Resolve pratyaahaara"""
+def resolve_pratyaahaara(pratyaahaara: str) -> List[List[str]]:
+    """Resolve pratyaahaara into all possible lists of characters"""
     aadi = pratyaahaara[0]
     antya = pratyaahaara[1:]
 
@@ -275,21 +305,48 @@ def resolve_pratyaahaara(pratyaahaara):
     return resolutions
 
 ###############################################################################
-
-
-def clean(text, punct=False, digits=False, spaces=True, allow=[]):
     """
     Clean a line of samskRta text
-        - punct: False (True means punctuations are kept)
-        - digits: False (True means digits are kept)
+        - punct: False
+        - digits: False (True means )
         - spaces: True (we usually don't want to change this)
         - allow: list of characters to allow
     """
+
+
+def clean(text: str, punct: bool = False, digits: bool = False, spaces: bool = True, allow: list = None) -> str:
+    """Clean a line of Sanskrit (Devanagari) text
+
+    Parameters
+    ----------
+    text : str
+        Input string
+    punct : bool, optional
+        If True, the punctuations are kept.
+        The default is False.
+    digits : bool, optional
+        If True, digits are kept.
+        The default is False.
+    spaces : bool, optional
+        If False, spaces are removed.
+        It is recommended to not change the default value
+        unless it is specifically relevant to a use-case.
+        The default is True.
+    allow : list, optional
+        List of characters to allow.
+        The default is None.
+
+    Returns
+    -------
+    str
+        Clean version of the string
+    """
+    allow = allow or []
     alphabet = ALPHABET + allow
     if spaces:
         alphabet += SPACES
     if punct:
-        alphabet += PUNC + GEN_PUNC
+        alphabet += PUNCTUATION + GENERAL_PUNCTUATION
     if digits:
         alphabet += DIGITS
     answer = ''.join(['' if c not in alphabet else c for c in text])
@@ -298,13 +355,30 @@ def clean(text, punct=False, digits=False, spaces=True, allow=[]):
     return answer
 
 
-def split_lines(text, pattern=r'[।॥\r\n]+'):
+def split_lines(text: str, pattern=r'[।॥\r\n]+') -> List[str]:
+    """Split a string into a list of strings using regular expression
+
+    Parameters
+    ----------
+    text : str
+        Input string
+    pattern : regexp, optional
+        Regular expression corresponding to the split points.
+        The default is r'[।॥\r\n]+'.
+
+    Returns
+    -------
+    List[str]
+        List of strings
+    """
     return list(filter(None, re.split(pattern, text)))
 
 ###############################################################################
 
 
-def trim_matra(line):
+def trim_matra(line: str) -> str:
+    """Trim matra from the end of a string"""
+    # TODO: If there is no general utility, consider removing this function.
     answer = line
     if line[-1] in [ANUSWARA, HALANTA, VISARGA]:
         answer = line[:-1]
@@ -315,10 +389,8 @@ def trim_matra(line):
 ###############################################################################
 
 
-def is_laghu(syllable):
-    """
-    Checks if the current syllable is Laghu
-    """
+def is_laghu(syllable: str) -> bool:
+    """Checks if the current syllable is Laghu"""
 
     return all([
         (
@@ -331,10 +403,8 @@ def is_laghu(syllable):
     ])
 
 
-def toggle_matra(syllable):
-    """
-    Change the Laghu syllable to Guru and Guru to Laghu (if possible)
-    """
+def toggle_matra(syllable: str) -> str:
+    """Change the Laghu syllable to Guru and Guru to Laghu (if possible)"""
     if syllable[-1] in MATRA:
         index = MATRA.index(syllable[-1])
         if index in [2, 4, 6, 8]:
@@ -352,7 +422,7 @@ def toggle_matra(syllable):
 ###############################################################################
 
 
-def marker_to_swara(m):
+def marker_to_swara(m: str) -> str:
     """Convert a Matra to corresponding Swara"""
     if m in ARTIFICIAL_MATRA:
         return m[1:]
@@ -366,7 +436,7 @@ def marker_to_swara(m):
     return None
 
 
-def swara_to_marker(s):
+def swara_to_marker(s: str) -> str:
     """Convert a Swara to correponding Matra"""
     if s == SWARA[0]:
         return f'-{s}'
@@ -383,8 +453,8 @@ def swara_to_marker(s):
 ###############################################################################
 
 
-def get_anunaasika(ch):
-    """Get appropriate anunasik from the character's group"""
+def get_anunaasika(ch: str) -> str:
+    """Get the appropriate anunaasika from the character's group"""
     MA = AUSHTHYA[4]
     if ch == '':
         return MA
@@ -398,7 +468,10 @@ def get_anunaasika(ch):
         return ANUSWARA
 
 
-def fix_anuswara(text):
+def fix_anuswara(text: str) -> str:
+    """
+    Check every anuswaara in the text and change to anunaasika if applicable
+    """
     output_chars = []
     if text:
         for idx in range(len(text) - 1):
@@ -417,14 +490,23 @@ def fix_anuswara(text):
 ###############################################################################
 
 
-def get_syllables_word(word, technical=False):
-    """
-    Get syllables from a Sanskrit word
-    @params:
-        word: word to get syllables from
-        technical: (boolean)
-                    if True, ensures that each element contains at most
-                    one Swara or Vyanjana
+def get_syllables_word(word: str, technical: bool = False) -> List[str]:
+    """Get syllables from a Sanskrit (Devanagari) word
+
+    Parameters
+    ----------
+    word : str
+        Sanskrit (Devanagari) word to get syllables from.
+        Spaces, if present, are ignored.
+    technical : bool, optional
+        If True, ensures that each element contains at most
+        one Swara or Vyanjana.
+        The default is False.
+
+    Returns
+    -------
+    List[str]
+        List of syllables
     """
     word = clean(word, spaces=False)
     wlen = len(word)
@@ -449,14 +531,23 @@ def get_syllables_word(word, technical=False):
     return word_syllables
 
 
-def get_syllables(text, technical=False):
-    """
-    Get syllables from a Sanskrit text
-    @params:
-        word: word to get syllables from
-        technical: (boolean)
-            if True, ensures that each element contains at most
-            one Swara or Vyanjana
+def get_syllables(text: str, technical: bool = False) -> List[List[List[str]]]:
+    """Get syllables from a Sanskrit (Devanagari) text
+
+    Parameters
+    ----------
+    text : str
+        Sanskrit (Devanagari) text to get syllables from
+    technical : bool, optional
+        If True, ensures that each element contains at most
+        one Swara or Vyanjana.
+        The default is False.
+
+    Returns
+    -------
+    List[List[List[str]]]
+        List of syllables in a nested list format
+        Nesting Levels: Text -> Lines -> Words
     """
     lines = split_lines(text.strip())
     syllables = []
@@ -472,19 +563,22 @@ def get_syllables(text, technical=False):
 ###############################################################################
 
 
-def split_varna_word(word, technical=True):
-    """
-    Give a Varna decomposition of a Sanskrit word
-    @params:
-        word: word to be split
-        technical: (boolean)
-            if True would give split more useful for analysis,
-            differentiating between Swara and Swara markers
-    @return:
-        viccheda: list of list of lists
-            Viccheda of each word is a list.
-            - List of Viccheda of each word from a line
-            - List of Viccheda of each line from the text
+def split_varna_word(word: str, technical: bool = True) -> List[str]:
+    """Obtain the Varna decomposition of a Sanskrit (Devanagari) word
+
+    Parameters
+    ----------
+    word : str
+        Sanskrit (Devanagari) word to be split.
+    technical : bool, optional
+        If True, a split, vowels and vowel signs are treated independently
+        which is more useful for analysis,
+        The default is True.
+
+    Returns
+    -------
+    List[str]
+        List of Varna
     """
     word_syllables = get_syllables_word(word, True)
     word_viccheda = []
@@ -526,24 +620,36 @@ def split_varna_word(word, technical=True):
     return word_viccheda
 
 
-def split_varna(text, technical=True, flat=False):
-    """
-    Give a Varna decomposition of a Sanskrit text
-    @params:
-        text: text to be split
-        technical: (boolean)
-                    if True would give split more useful for analysis
-        flat: (boolean)
-            If True,
-                return a single list instead of nested lists
-                words will be separated by a space, lines by a newline char
-            The default is False
+def split_varna(text: str, technical: bool = True, flat: bool = False) -> List[List[List[str]]] or List[str]:
+    """Obtain the Varna decomposition of a Sanskrit (Devanagari) text
 
-    @return:
-        viccheda: list of list of lists
-            Viccheda of each word is a list.
-            - List of Viccheda of each word from a line
-            - List of Viccheda of each line from the text
+    Parameters
+    ----------
+    word : str
+        Sanskrit (Devanagari) text to be split.
+    technical : bool, optional
+        If True, a split, vowels and vowel signs are treated independently
+        which is more useful for analysis,
+        The default is True.
+    flat : bool, optional
+        If True, a single list is returned instead of nested lists.
+        The default is False.
+
+    Returns
+    -------
+    List[List[List[str]]] or List[str]
+
+        Varna decomposition of the text in a nested list format.
+        Nesting Levels: Text -> Lines -> Words
+
+        - Varna decomposition of each word is a List[char].
+        - List of Varna decomposition of each word from a line.
+        - List of Varna decomposition of each line from the text.
+
+        If `flat=True`, Varna decomposition of the entire text is presented
+        as a single list, also containing whitespace markers.
+        Lines are separated by a newline character '\n' and words are
+        separated by a space character ' '.
     """
 
     lines = split_lines(text.strip())
@@ -570,17 +676,17 @@ def split_varna(text, technical=True, flat=False):
     return viccheda
 
 
-def join_varna(viccheda, technical=True):
+def join_varna(viccheda: str, technical: bool = True) -> str:
     """
-    Join Varna decomposition to form a Sanskrit word
+    Join Varna decomposition to form a Sanskrit (Devanagari) word
 
     Parameters
     ----------
     viccheda : list
         Viccheda output obtained by split_varna_word
-        (or output of split_varna with flat=True)
+        (or output of `split_varna` with `flat=True`)
     technical : bool
-        Value of the same parameter passed to split_varna_word
+        Value of the same parameter passed to `split_varna_word`
 
     Returns
     -------
@@ -729,7 +835,7 @@ UCCHAARANA_NAMES = dict(**STHAANA_NAMES, **AABHYANTARA_NAMES, **BAAHYA_NAMES)
 ###############################################################################
 
 
-def get_ucchaarana_vector(letter: str, abbrev=False):
+def get_ucchaarana_vector(letter: str, abbrev=False) -> Dict[str, int]:
     """
     Get ucchaarana sthaana and prayatna based vector of a letter
 
@@ -738,16 +844,14 @@ def get_ucchaarana_vector(letter: str, abbrev=False):
     letter : str
         Sanskrit letter
     abbrev : bool
-        If True,
-            The output will contain English abbreviations
-        Otherwise,
-            The output will contain Sanskrit names
+        If True, the output will contain English abbreviations
+        otherwise, the output will contain Sanskrit names.
         The default is False.
 
     Returns
     -------
-    vector : dict
-        one-hot vector indicating utpatti sthaana, aabhyantara prayatna and
+    vector : Dict[str, int]
+        One-hot vector indicating utpatti sthaana, aabhyantara prayatna and
         baahya prayatna of a letter
     """
     varna = letter.replace(HALANTA, '') if letter.endswith(HALANTA) else letter
@@ -766,7 +870,7 @@ def get_ucchaarana_vector(letter: str, abbrev=False):
     return vector
 
 
-def get_ucchaarana_vectors(word, abbrev=False):
+def get_ucchaarana_vectors(word: str, abbrev: bool = False) -> List[Tuple[str, Dict[str, int]]]:
     """
     Get ucchaarana sthaana and prayatna based vector of a word or text
 
@@ -775,14 +879,13 @@ def get_ucchaarana_vectors(word, abbrev=False):
     word : str
         Sanskrit word (or text)
     abbrev : bool
-        If True,
-            The output will contain English abbreviations
-        Otherwise,
-            The output will contain Sanskrit names
+        If True, the output will contain English abbreviations
+        otherwise, the output will contain Sanskrit names.
         The default is False.
+
     Returns
     -------
-    vectors : list
+    vectors : List[Tuple[str, Dict[str, int]]]
         List of (letter, vector)
     """
     letters = []
@@ -799,7 +902,7 @@ def get_ucchaarana_vectors(word, abbrev=False):
 ###############################################################################
 
 
-def get_signature_letter(letter, abbrev=False):
+def get_signature_letter(letter: str, abbrev: bool = False) -> Dict[str, str]:
     """
     Get ucchaarana sthaana and prayatna based signature of a letter
 
@@ -808,15 +911,13 @@ def get_signature_letter(letter, abbrev=False):
     letter : str
         Sanskrit letter
     abbrev : bool
-        If True,
-            The output will contain English abbreviations
-        Otherwise,
-            The output will contain Sanskrit names
+        If True, the output will contain English abbreviations
+        otherwise, the output will contain Sanskrit names.
         The default is False.
 
     Returns
     -------
-    signature : dict
+    signature : Dict[str, str]
         utpatti sthaana, aabhyantara prayatna and baahya prayatna of a letter
     """
     sthaana = get_ucchaarana_letter(letter, dimension=0, abbrev=abbrev)
@@ -831,7 +932,7 @@ def get_signature_letter(letter, abbrev=False):
     return signature
 
 
-def get_signature_word(word, abbrev=False):
+def get_signature_word(word: str, abbrev: bool = False) -> List[Tuple[str, Dict[str, str]]]:
     """
     Get ucchaarana sthaana and prayatna based signature of a word
 
@@ -839,18 +940,16 @@ def get_signature_word(word, abbrev=False):
     ----------
     word : str
         Sanskrit word (or text)
-        Caution:
-            If multiple words are provided, the spaces are not included in
-            the output list
+        Caution: If multiple words are provided,
+        the spaces are not included in the output list.
     abbrev : bool
-        If True,
-            The output will contain English abbreviations
-        Otherwise,
-            The output will contain Sanskrit names
+        If True, the output will contain English abbreviations
+        otherwise, the output will contain Sanskrit names.
         The default is False.
+
     Returns
     -------
-    list
+    List[Tuple[str, Dict[str, str]]]
         List of (letter, signature)
 
     """
@@ -866,7 +965,7 @@ def get_signature_word(word, abbrev=False):
     ]
 
 
-def get_signature(text, abbrev=False):
+def get_signature(text: str, abbrev: bool = False) -> List[List[List[Tuple[str, Dict[str, str]]]]]:
     """
     Get ucchaarana list of a Sanskrit text
 
@@ -875,15 +974,14 @@ def get_signature(text, abbrev=False):
     text : str
         Sanskrit text (can contain newlines, spaces)
     abbrev : bool
-        If True,
-            The output will contain English abbreviations
-        Otherwise,
-            The output will contain Sanskrit names
+        If True, the output will contain English abbreviations
+        otherwise, the output will contain Sanskrit names.
         The default is False.
+
     Returns
     -------
-    list
-        List of (letter, signature) for words in a nested list manner
+    List[List[List[Tuple[str, Dict[str, str]]]]]
+        List of (letter, signature) for words in a nested list format
         Nesting Levels: Text -> Lines -> Words
     """
     lines = split_lines(text.strip())
@@ -900,7 +998,7 @@ def get_signature(text, abbrev=False):
 ###############################################################################
 
 
-def get_ucchaarana_letter(letter, dimension=0, abbrev=False):
+def get_ucchaarana_letter(letter: str, dimension: int = 0, abbrev: bool = False) -> str:
     """
     Get ucchaarana sthaana or prayatna of a letter
 
@@ -949,7 +1047,7 @@ def get_ucchaarana_letter(letter, dimension=0, abbrev=False):
     return join_str.join(ucchaarana)
 
 
-def get_ucchaarana_word(word, dimension=0, abbrev=False):
+def get_ucchaarana_word(word: str, dimension: int = 0, abbrev: bool = False) -> List[Tuple[str, str]]:
     """
     Get ucchaarana of a word
 
@@ -964,6 +1062,7 @@ def get_ucchaarana_word(word, dimension=0, abbrev=False):
         0 : sthaana
         1 : aabhyantara prayatna
         2 : baahya prayatna
+        The default is 0.
     abbrev : bool
         If True,
             The output will contain English abbreviations
@@ -972,7 +1071,7 @@ def get_ucchaarana_word(word, dimension=0, abbrev=False):
         The default is False.
     Returns
     -------
-    list
+    List[Tuple[str, str]]
         List of (letter, ucchaarana)
 
     """
@@ -988,7 +1087,7 @@ def get_ucchaarana_word(word, dimension=0, abbrev=False):
     ]
 
 
-def get_ucchaarana(text, dimension=0, abbrev=False):
+def get_ucchaarana(text: str, dimension: int = 0, abbrev: bool = False) -> List[List[List[Tuple[str, str]]]]:
     """
     Get ucchaarana list of a Sanskrit text
 
@@ -1008,8 +1107,8 @@ def get_ucchaarana(text, dimension=0, abbrev=False):
         The default is False.
     Returns
     -------
-    list
-        List of (letter, ucchaarana) for words in a nested list manner
+    List[List[List[Tuple[str, str]]]]
+        List of (letter, ucchaarana) for words in a nested list format
         Nesting Levels: Text -> Lines -> Words
     """
     lines = split_lines(text.strip())
@@ -1027,51 +1126,51 @@ def get_ucchaarana(text, dimension=0, abbrev=False):
 ###############################################################################
 
 
-def get_sthaana_letter(letter, abbrev=False):
+def get_sthaana_letter(letter: str, abbrev: bool = False):
     """Wrapper for get_ucchaarana_letter for sthaana"""
     return get_ucchaarana_letter(letter, dimension=0, abbrev=abbrev)
 
 
-def get_sthaana_word(word, abbrev=False):
+def get_sthaana_word(word: str, abbrev: bool = False):
     """Wrapper for get_ucchaarana_word for sthaana"""
     return get_ucchaarana_word(word, dimension=0, abbrev=abbrev)
 
 
-def get_sthaana(text, abbrev=False):
+def get_sthaana(text: str, abbrev: bool = False):
     """Wrapper for get_ucchaarana for sthaana"""
     return get_ucchaarana(text, dimension=0, abbrev=abbrev)
 
 # --------------------------------------------------------------------------- #
 
 
-def get_aabhyantara_letter(letter, abbrev=False):
+def get_aabhyantara_letter(letter: str, abbrev: bool = False):
     """Wrapper for get_ucchaarana_letter for aabhyantara"""
     return get_ucchaarana_letter(letter, dimension=1, abbrev=abbrev)
 
 
-def get_aabhyantara_word(word, abbrev=False):
+def get_aabhyantara_word(word: str, abbrev: bool = False):
     """Wrapper for get_ucchaarana_word for aabhyantara"""
     return get_ucchaarana_word(word, dimension=1, abbrev=abbrev)
 
 
-def get_aabhyantara(text, abbrev=False):
+def get_aabhyantara(text: str, abbrev: bool = False):
     """Wrapper for get_ucchaarana for aabhyantara"""
     return get_ucchaarana(text, dimension=1, abbrev=abbrev)
 
 # --------------------------------------------------------------------------- #
 
 
-def get_baahya_letter(letter, abbrev=False):
+def get_baahya_letter(letter: str, abbrev: bool = False):
     """Wrapper for get_ucchaarana_letter for baahya"""
     return get_ucchaarana_letter(letter, dimension=2, abbrev=abbrev)
 
 
-def get_baahya_word(word, abbrev=False):
+def get_baahya_word(word: str, abbrev: bool = False):
     """Wrapper for get_ucchaarana_word for baahya"""
     return get_ucchaarana_word(word, dimension=2, abbrev=abbrev)
 
 
-def get_baahya(text, abbrev=False):
+def get_baahya(text: str, abbrev: bool = False):
     """Wrapper for get_ucchaarana for baahya"""
     return get_ucchaarana(text, dimension=2, abbrev=abbrev)
 
