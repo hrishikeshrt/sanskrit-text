@@ -697,10 +697,17 @@ def join_varna(viccheda: str, technical: bool = True) -> str:
     Parameters
     ----------
     viccheda : list
-        Viccheda output obtained by split_varna_word
-        (or output of `split_varna` with `flat=True`)
+        Viccheda output obtained by `split_varna_word` with `technical=True`
+        (or output of `split_varna` with `technical=True` and `flat=True`)
+        IMPORTANT: `technical=True` is necessary.
     technical : bool
+        WARNING: Currently unused.
         Value of the same parameter passed to `split_varna_word`
+
+
+    NOTE
+    ----
+        Currently only works for the viccheda generated with `technical=True`
 
     Returns
     -------
@@ -710,47 +717,52 @@ def join_varna(viccheda: str, technical: bool = True) -> str:
     word = []
     i = 0
     while i < len(viccheda):
-        curr_syl = viccheda[i]
-        next_syl = ""
+        curr_varna = viccheda[i]
+        next_varna = ""
         if i < len(viccheda) - 1:
-            next_syl = viccheda[i + 1]
+            next_varna = viccheda[i + 1]
 
         i += 1
 
-        if curr_syl in [" ", "\n"]:
-            word.append(curr_syl)
+        if curr_varna in [" ", "\n"]:
+            word.append(curr_varna)
             continue
 
-        if curr_syl[0] in ALL_SWARA + SPECIAL:
-            word.append(curr_syl[0])
-            if curr_syl[-1] in AYOGAVAAHA_COMMON:
-                word.append(curr_syl[-1])
-        if curr_syl[-1] == HALANTA:
-            if next_syl in [" ", "\n"]:
-                word.append(curr_syl)
+        if curr_varna[0] in ALL_SWARA + SPECIAL:
+            word.append(curr_varna[0])
+            if curr_varna[-1] in AYOGAVAAHA_COMMON:
+                word.append(curr_varna[-1])
+        if curr_varna[-1] == HALANTA:
+            if next_varna in [" ", "\n"]:
+                word.append(curr_varna)
                 continue
-            if next_syl == "":
-                word.append(curr_syl)
+            if next_varna == "":
+                word.append(curr_varna)
                 break
-            if next_syl[-1] == HALANTA:
-                word.append(curr_syl)
-            if next_syl[0] in ALL_SWARA:
+            if next_varna[-1] == HALANTA:
+                word.append(curr_varna)
+            if next_varna[0] in ALL_SWARA:
                 i += 1
-                word.append(curr_syl[:-1])
-                if next_syl[0] != SWARA[0]:
-                    word.append(marker_to_swara(next_syl[0]))
-                if next_syl[-1] == VISARGA:
-                    word.append(next_syl[-1])
-            if next_syl in AYOGAVAAHA_COMMON:
+                word.append(curr_varna[:-1])
+                if next_varna[0] != SWARA[0]:
+                    word.append(marker_to_swara(next_varna[0]))
+                if next_varna[-1] == VISARGA:
+                    # NOTE: This was mostly meant to handle version with
+                    # `technical=False`
+                    LOGGER.warning(
+                        f"Next Varna is SWARA + VISARGA: {next_varna}"
+                    )
+                    word.append(next_varna[-1])
+            if next_varna in AYOGAVAAHA_COMMON:
                 i += 1
-                word.append(curr_syl[:-1] + next_syl)
-            if next_syl in ARTIFICIAL_MATRA + ALL_MATRA:
+                word.append(curr_varna[:-1] + next_varna)
+            if next_varna in ARTIFICIAL_MATRA + ALL_MATRA:
                 i += 1
-                word.append(curr_syl[:-1])
-                if next_syl != ARTIFICIAL_MATRA_A:
-                    word.append(next_syl)
-        if curr_syl in ARTIFICIAL_MATRA + ALL_MATRA + AYOGAVAAHA_COMMON:
-            word.append(curr_syl)
+                word.append(curr_varna[:-1])
+                if next_varna != ARTIFICIAL_MATRA_A:
+                    word.append(next_varna)
+        if curr_varna in ARTIFICIAL_MATRA + ALL_MATRA + AYOGAVAAHA_COMMON:
+            word.append(curr_varna)
 
     return "".join(word)
 
