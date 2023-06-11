@@ -370,7 +370,7 @@ def split_lines(text: str, pattern=r"[।॥\r\n]+") -> List[str]:
         Input string
     pattern : regexp, optional
         Regular expression corresponding to the split points.
-        The default is r'[।॥\r\n]+'.
+        The default is r'[।॥\\r\\n]+'.
 
     Returns
     -------
@@ -662,7 +662,7 @@ def split_varna(
 
         If `flat=True`, Varna decomposition of the entire text is presented
         as a single list, also containing whitespace markers.
-        Lines are separated by a newline character '\n' and words are
+        Lines are separated by a newline character '\\n' and words are
         separated by a space character ' '.
     """
 
@@ -1046,21 +1046,23 @@ def get_ucchaarana_letter(
     letter : str
         Sanskrit letter
     dimension : int
-        0 : sthaana
-        1 : aabhyantara prayatna
-        2 : baahya prayatna
+        - 0: sthaana
+        - 1: aabhyantara prayatna
+        - 2: baahya prayatna
+
+        The default is 0.
     abbrev : bool
         If True,
             The output will contain English abbreviations
         Otherwise,
             The output will contain Sanskrit names
+
         The default is False.
 
     Returns
     -------
     str
         ucchaarana sthaana or prayatna of a letter
-
     """
     varna = letter.replace(HALANTA, "") if letter.endswith(HALANTA) else letter
     ucchaarana = []
@@ -1100,20 +1102,23 @@ def get_ucchaarana_word(
     ----------
     word : str
         Sanskrit word (or text)
-        Caution:
-            If multiple words are provided, the spaces are not included in
-            the output list
+
+        **Caution**: If multiple words are provided, the spaces are not included in
+        the output list
     dimension : int
-        0 : sthaana
-        1 : aabhyantara prayatna
-        2 : baahya prayatna
+        - 0: sthaana
+        - 1: aabhyantara prayatna
+        - 2: baahya prayatna
+
         The default is 0.
     abbrev : bool
         If True,
             The output will contain English abbreviations
         Otherwise,
             The output will contain Sanskrit names
+
         The default is False.
+
     Returns
     -------
     List[Tuple[str, str]]
@@ -1143,15 +1148,19 @@ def get_ucchaarana(
     text : str
         Sanskrit text (can contain newlines, spaces)
     dimension : int
-        0 : sthaana
-        1 : aabhyantara prayatna
-        2 : baahya prayatna
+        - 0: sthaana
+        - 1: aabhyantara prayatna
+        - 2: baahya prayatna
+
+        The default is 0.
     abbrev : bool
         If True,
             The output will contain English abbreviations
         Otherwise,
             The output will contain Sanskrit names
+
         The default is False.
+
     Returns
     -------
     List[List[List[Tuple[str, str]]]]
