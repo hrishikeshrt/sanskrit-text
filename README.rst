@@ -56,6 +56,53 @@ To install Sanskrit Text, run this command in your terminal:
 
     $ pip install sanskrit-text
 
+Usage
+=====
+
+Python API
+----------
+
+.. code-block:: python
+
+    import sanskrit_text as skt
+
+    text = "कवि भारतः"
+
+    # Clean text (keep only Sanskrit letters and spaces)
+    clean_text = skt.clean(text)
+
+    # Syllabification
+    syllables = skt.get_syllables(text)
+
+    # Varṇa decomposition and join
+    viccheda = skt.split_varna(text, technical=True, flat=True)
+    reconstructed = skt.join_varna(viccheda)
+
+    # Ucchāraṇa information
+    ucchaarana = skt.get_ucchaarana(text)
+    signature = skt.get_signature(text)
+
+Command Line Interface
+----------------------
+
+After installation, the :code:`skt` command provides a small CLI:
+
+.. code-block:: console
+
+    # Clean text
+    $ echo "अ b १।" | skt clean
+    अ
+
+    # Get syllables (JSON output)
+    $ skt syllables "कवि भारतः"
+
+    # Varṇa decomposition (technical, flat list)
+    $ skt split-varna --technical --flat "कवि भारतः"
+
+    # Ucchāraṇa and signature (JSON output)
+    $ skt ucchaarana "कवि"
+    $ skt signature "कवि"
+
 Credits
 =======
 

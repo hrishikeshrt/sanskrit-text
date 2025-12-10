@@ -384,12 +384,28 @@ def split_lines(text: str, pattern=r"[।॥\r\n]+") -> List[str]:
 
 
 def trim_matra(line: str) -> str:
-    """Trim matra from the end of a string"""
-    # TODO: If there is no general utility, consider removing this function.
+    """
+    Trim trailing mātrā and related markers from the end of a string.
+
+    This is a simple orthographic heuristic intended for rough
+    normalisation (for example, comparing or grouping word-final
+    consonant bases). It is **not** a linguistically realistic notion
+    of stemming or lemmatisation and should not be used as such.
+
+    The function removes, in order:
+
+    1. A final anusvāra/halanta/visarga, if present.
+    2. A final mātrā character, if present after step (1).
+
+    If the input string is empty, it is returned unchanged.
+    """
+    if not line:
+        return line
+
     answer = line
-    if line[-1] in [ANUSWARA, HALANTA, VISARGA]:
-        answer = line[:-1]
-    if answer[-1] in ALL_MATRA:
+    if answer and answer[-1] in [ANUSWARA, HALANTA, VISARGA]:
+        answer = answer[:-1]
+    if answer and answer[-1] in ALL_MATRA:
         answer = answer[:-1]
     return answer
 
@@ -443,7 +459,7 @@ def marker_to_swara(m: str) -> str:
         return SWARA[m_idx + 1]
     elif m in EXTENDED_MATRA:
         m_idx = EXTENDED_MATRA.index(m)
-        return EXTENDED_SWARA[m]
+        return EXTENDED_SWARA[m_idx]
     return None
 
 
