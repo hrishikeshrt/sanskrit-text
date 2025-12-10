@@ -7,14 +7,14 @@ Unreleased
 * Add a command-line interface (:code:`skt`) with subcommands for cleaning
   text, obtaining syllables and varṇa decomposition.
 * Add a basic unit test suite covering core utilities and the CLI.
-* Fix :func:`marker_to_swara` for extended mātrā characters.
+* Fix ``marker_to_swara`` for extended mātrā characters.
 * Update packaging metadata and Trove classifiers for a production-ready
   release.
 
 0.2.3 (2022-09-14)
 ------------------
 
-* Clarify documentation for :func:`join_varna` and update general project
+* Clarify documentation for ``join_varna`` and update general project
   documentation.
 
 0.2.2 (2022-09-13)
